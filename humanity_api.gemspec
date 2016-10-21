@@ -9,15 +9,15 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Jane Kim"]
   spec.email         = ["jane@officeluv.com"]
 
-  spec.summary       = %q{This gem allows access to the Humanity API.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
+  spec.summary       = %q{This gem allows access to the Humanity API using Ruby.}
+  spec.description   = %q{The Humanity API gem allows users to access the Humanity API with a simple set of parameters.}
   spec.homepage      = "https://github.com/officeluv/humanity-api"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
+    spec.metadata['allowed_push_host'] = "https://rubygems.org/"
   else
     raise "RubyGems 2.0 or newer is required to protect against " \
       "public gem pushes."
