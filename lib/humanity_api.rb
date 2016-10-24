@@ -1,83 +1,89 @@
-# BDD EXAMPLES:
-# foo = HumanityAPI.new
-# foo.token = 'asdfasdf'
-# puts foo.key
-# resp = foo.fetch_humanity_data({
-#     bas: 4
-# })
-# if foo.errors?
-#   puts 'oh no'
-#   puts foo.errors.first
-# else
-#   put resp[:name]
-# end
+require "pry"
 
-require "humanity_api/version"
-require "uri"
-require "net/http"
+class HumanityApi
+  attr_reader :errors
+  attr_accessor :key, :token, :output_format
 
-module HumanityApi
-
-  @@errors = []
-
-  HUMANITY_BASE = 'https://www.humanity.shiftplanning.com/api/'
-  HUMANITY_TOKEN = ENV['HUMANITY_TOKEN']
-  HUMANITY_KEY = ENV['HUMANITY_KEY']
+  HUMANITY_BASE = "https://www.humanity.shiftplanning.com/api/"
   VALID_REQUEST_METHODS = %w(GET CREATE UPDATE DELETE)
 
-  def fetch_humanity_data(data)
+  def initialize
+    @token = ENV["HUMANITY_TOKEN"]
+    @key = ENV["HUMANITY_KEY"]
+    @errors = []
+    @output_format = "json"
+  end
+
+  def errors?
+    @errors.count > 0
+  end
+
+  def check_params_for_errors(body)
+    key_error = "Invalid data packet: please provide a Humanity API key."
+    method_error = "Invalid data packet: please provide a valid request method of 'GET', 'CREATE', 'UPDATE', or 'DELETE'."
+    module_error = "Invalid data packet: please provide the Humanity module." 
+
+    !body[:key] ? @errors << key_error : @errors.delete(key_error)
+    !VALID_REQUEST_METHODS.include?(body[:request][:method]) ? @errors << method_error : @errors.delete(method_error)
+    !body[:request][:module] ? @errors << module_error : @errors.delete(module_error)
+  end
+
+  def request_humanity_data(data)
     request_params = build_request_params(data)
     humanity_response = make_request(request_params)
     parse_humanity_response(humanity_response)
   end
 
   def build_request_params(data)
-    token = data[:token] || HUMANITY_TOKEN
-    key = data[:key] || HUMANITY_KEY
-    request_params = data.reject(:token, :key)
+    data[:token]         ||=  @token
+    data[:key]           ||=  @key
+    data[:output_format] ||=  @output_format
 
-    request_params[:method] = data[:method].upcase || 'GET'
-
-    if key == nil
-      @@errors << "Invalid data packet: please provide a Humanity API key."
-    elsif token == nil
-      @@errors << "Invalid data packet: please provide a Humanity auth token."
-    elsif VALID_REQUEST_METHODS.include?(request_params[:method])
-      @@errors << "Invalid data packet: please provide a valid request method of 'GET', 'CREATE', 'UPDATE', or 'DELETE'."
-    end
+    request_params = data.dup
+    request_params.reject! { |data_key, data_value| data_key == :token || data_key == :key || data_key == :output_format }
+    request_params[:method] = data[:method] || "GET"
+    request_params[:method].upcase!
 
     body = {
-      :token    => token,
-      :key      => key,
+      :token    => data[:token],
+      :key      => data[:key],
       :request  => request_params,
-      :output   => 'json'
+      :output   => data[:output_format]
     }
+
+    check_params_for_errors(body)
+    return body
   end
 
   def make_request(body)
-    return unless @@errors.count == 0
+    return unless @errors.count == 0
 
     uri = URI(HUMANITY_BASE)
-    req = Net::HTTP::Post.new(uri)
-    req.set_form_data({"data" => body})
-    response = Net::HTTP.start(uri.hostname, uri.port) { |http| http.request(req) }
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
 
-    case response
-    when Net::HTTPSuccess, Net::HTTPRedirection
+    request = Net::HTTP::Post.new(uri.path)
+    request_params = JSON.generate(body)
+    request.set_form_data({"data" => request_params})
+    response = http.request(request)
+
+    case response.code.to_i
+    when 200 || 201
       JSON.parse(response.body)
     else
-      @@errors << "Request failed: #{response.value}"
+      @errors << "Request failed: #{response.value}"
       JSON.parse(response) # think about when this will return falsey/nil/error
     end
   end
 
   def parse_humanity_response(response)
-    if @@errors.count != 0
-      @@errors.join(" ")
-    elsif response['status'] != "1"
+    if errors?
+      { errors: @errors.join(" ") }
+    elsif response["status"] != 1
       response
     else
-      response['data']
+      response["data"]
     end
   end
+
 end
