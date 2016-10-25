@@ -24,10 +24,10 @@ Or install it yourself as:
 
 ```ruby
 
-# Use this gem by instantiating the class.
+# Use this gem by instantiating the class. The class is initialized with a output format of 'json'. Currently, the output format can only be set as json.
 humanity_api = HumanityApi.new
 
-# If you have the key and token set in your environment variables, the gem will find and use them. You can also access the key and token using getters and setters:
+# If you have the key and token set in your environment variables as "HUMANITY_KEY" and "HUMANITY_TOKEN", the gem will find and use them. You can also access the key and token using getters and setters:
 humanity_api.token = "your_token"
 humanity_api.key = "your_key"
 
@@ -36,9 +36,6 @@ data = {token: "your_token", key: "your_key"}
 
 # Pass in a request method in your data packet as a string. If a method is not passed in, it will default to a get request.
 data[:method] = "update"
-
-# If you don't specify the output_format in your data packet, it will default to "json".
-data[:output_format] = "xml"
 
 # Also in your data packet, pass in the Humanity module as a string. You can see the full list of modules at https://www.humanity.shiftplanning.com/api/.
 data[:module] = "staff.employee"
@@ -50,7 +47,13 @@ data[:job_title] = "Developer"
 # The call to the Humanity API is wrapped inside the #request_humanity_data method. Call this method with the data packet containing your request parameters.
 humanity_api.request_humanity_data(data)
 
-# If the call is successful, the gem will return an object containing the data from the Humanity API. Otherwise, it will return an error from Humanity or from the gem itself.
+# You can check whether errors exist by using the #errors? method. You can also see which errors exist on the instance by using the errors getter.
+humanity_api.errors? # returns true/false
+humanity_api.errors  # returns an array containing error messages
+
+# If the call is successful, the response will return an object containing the requested data from the Humanity API. Otherwise, it will return an object containing the error. You can check whether the errors on the response by accessing the 'error' key on the response object.
+response = humanity_api.parse_humanity_response(data)
+response['error']
 
 ```
 

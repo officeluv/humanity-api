@@ -3,12 +3,10 @@ require "spec_helper"
 describe HumanityApi do
   let(:humanity_api) { HumanityApi.new }
 
-  let(:key) { '9c5edef7302e2f272f8de273b1d20927d65b1c49' }
-
   let(:valid_data) {
     {
       :token => '',
-      :key => key,
+      :key => 'dummy_key',
       :method => 'get',
       :module => 'api.config'
     }
@@ -97,12 +95,6 @@ describe HumanityApi do
         expect(humanity_api.errors).to include("Invalid data packet: please provide a Humanity API key.")
       end
 
-      it "adds an error message for an invalid request method" do
-        invalid_request_params[:request][:method] = 'invalid_method'
-        request_params = humanity_api.check_params_for_errors(invalid_request_params)
-        expect(humanity_api.errors).to include("Invalid data packet: please provide a valid request method of 'GET', 'CREATE', 'UPDATE', or 'DELETE'.")
-      end
-
       it "adds an error message for a missing request module" do
         invalid_request_params[:request].delete(:module)
         request_params = humanity_api.check_params_for_errors(invalid_request_params)
@@ -157,7 +149,7 @@ describe HumanityApi do
     context "given that there are errors" do
       it "returns a hash containing all the errors" do
         humanity_api.instance_variable_set(:@errors, ["An error message", "Another error message."])
-        expect(humanity_api.parse_humanity_response("")).to eq({errors: humanity_api.errors.join(" ")})
+        expect(humanity_api.parse_humanity_response("")).to eq({'error' => humanity_api.errors.join(" ")})
       end
     end
 

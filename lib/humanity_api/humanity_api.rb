@@ -18,24 +18,22 @@ class HumanityApi
 
   def check_params_for_errors(body)
     key_error = "Invalid data packet: please provide a Humanity API key."
-    method_error = "Invalid data packet: please provide a valid request method of 'GET', 'CREATE', 'UPDATE', or 'DELETE'."
     module_error = "Invalid data packet: please provide the Humanity module." 
 
-    !body[:key] ? @errors << key_error : @errors.delete(key_error)
-    !VALID_REQUEST_METHODS.include?(body[:request][:method]) ? @errors << method_error : @errors.delete(method_error)
-    !body[:request][:module] ? @errors << module_error : @errors.delete(module_error)
+    @errors << key_error if !body[:key]
+    @errors << module_error if !body[:request][:module]
   end
 
   def request_humanity_data(data)
+    @errors = []
     request_params = build_request_params(data)
     humanity_response = make_request(request_params)
     parse_humanity_response(humanity_response)
   end
 
   def build_request_params(data)
-    data[:token]         ||=  @token
-    data[:key]           ||=  @key
-    data[:output_format] ||=  @output_format
+    data[:token] ||=  @token
+    data[:key]   ||=  @key
 
     request_params = data.dup
     request_params.reject! { |data_key, data_value| data_key == :token || data_key == :key || data_key == :output_format }
@@ -46,7 +44,7 @@ class HumanityApi
       :token    => data[:token],
       :key      => data[:key],
       :request  => request_params,
-      :output   => data[:output_format]
+      :output   => @output_format
     }
 
     check_params_for_errors(body)
@@ -70,13 +68,17 @@ class HumanityApi
       JSON.parse(response.body)
     else
       @errors << "Request failed: #{response.value}"
-      JSON.parse(response) # think about when this will return falsey/nil/error
+      begin
+        JSON.parse(response)
+      rescue error
+        { error: error }
+      end
     end
   end
 
   def parse_humanity_response(response)
     if errors?
-      { errors: @errors.join(" ") }
+      { "error" => @errors.join(" ") }
     elsif response["status"] != 1
       response
     else
