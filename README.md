@@ -1,8 +1,6 @@
 # HumanityApi
 
-This gem allows easy access to the Humanity API using Ruby.
-
-https://www.humanity.shiftplanning.com/api/
+This gem allows easy access to the [Humanity API](https://www.humanity.shiftplanning.com/api/) using Ruby.
 
 ## Installation
 
