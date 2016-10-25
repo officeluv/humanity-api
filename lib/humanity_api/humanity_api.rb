@@ -1,5 +1,3 @@
-require "pry"
-
 class HumanityApi
   attr_reader :errors
   attr_accessor :key, :token, :output_format
