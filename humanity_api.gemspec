@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{This gem allows access to the Humanity API using Ruby.}
   spec.description   = %q{The Humanity API gem allows users to access the Humanity API with a simple set of parameters.}
   spec.homepage      = "https://github.com/officeluv/humanity-api"
-  spec.license       = "MIT"
+  spec.license       = "GNU"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.

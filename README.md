@@ -67,5 +67,5 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/office
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+The gem is available as open source under the terms of the [GNU License](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
