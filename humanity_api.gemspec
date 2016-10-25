@@ -2,10 +2,6 @@
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'humanity_api/version'
-require "uri"
-require "net/http"
-require "openssl"
-require "json"
 
 Gem::Specification.new do |spec|
   spec.name          = "humanity_api"
