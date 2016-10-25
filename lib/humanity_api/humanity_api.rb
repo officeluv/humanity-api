@@ -1,6 +1,6 @@
 class HumanityApi
   attr_reader :errors
-  attr_accessor :key, :token, :output_format
+  attr_accessor :key, :token
 
   HUMANITY_BASE = "https://www.humanity.shiftplanning.com/api/"
   VALID_REQUEST_METHODS = %w(GET CREATE UPDATE DELETE)
