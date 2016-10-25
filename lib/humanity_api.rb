@@ -1,3 +1,8 @@
+require "uri"
+require "net/http"
+require "openssl"
+require "json"
+
 class HumanityApi
   attr_reader :errors
   attr_accessor :key, :token
